@@ -15,12 +15,11 @@ import axios from 'axios';
 import Config from 'react-native-config';
 
 const Currency = () => {
-  const {API_KEY,BASE_URL} = Config
+  const {API_KEY, BASE_URL} = Config;
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [amount, setAmount] = useState('');
   const [exchangeRates, setExchangeRates] = useState({});
   const [toCurrency, setToCurrency] = useState('EUR');
-
   const [convertedAmount, setConvertedAmount] = useState('');
   const [conversionHistory, setConversionHistory] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
@@ -29,21 +28,14 @@ const Currency = () => {
     setAmount(text);
   };
 
-
   const callConversionApiFetchData = async () => {
     try {
-      const res = await axios.get(
-        `${BASE_URL}/${API_KEY}/latest/USD`,
-      );
+      const res = await axios.get(`${BASE_URL}/${API_KEY}/latest/USD`);
       if (res && res.data) {
         setExchangeRates(res?.data.conversion_rates);
       }
     } catch (error) {
-        //Error will show when api fails
-      Alert.alert(
-        'Error: ',
-        'Failed to fetch Exchange Rates. Please Try Again.',
-      );
+      Alert.alert('Error: ', 'Failed to fetch Exchange Rates. Please Try Again.');
     }
   };
 
@@ -66,8 +58,7 @@ const Currency = () => {
         amount: amount,
         result: result,
       };
-      
-     setConversionHistory(prev => [newConversionDetails, ...prev].slice(0, 5)); // as per req clice the 5 objects
+      setConversionHistory(prev => [newConversionDetails, ...prev].slice(0, 5));
     }
   }, [amount, exchangeRates, fromCurrency, toCurrency]);
 
@@ -94,50 +85,50 @@ const Currency = () => {
           handleChangeAmount(text);
         }}
       />
-      <Text style={styles.text}>From:</Text>
-      <Picker
-        style={styles.picker}
-        selectedValue={fromCurrency}
-        onValueChange={(itemValue, itemIndex) => setFromCurrency(itemValue)}>
-        <Picker.Item label="USD" value="USD" />
-        <Picker.Item label="AED" value="AED" />
-        <Picker.Item label="INR" value="INR" />
-        <Picker.Item label="AMD" value="AMD" />
-        <Picker.Item label="ANG" value="ANG" />
-
-
-      </Picker>
-      <Text style={styles.text}>Show Converted Amount</Text>
-      <Picker
-        style={styles.picker}
-        selectedValue={toCurrency}
-        onValueChange={(itemValue, itemIndex) => setToCurrency(itemValue)}>
-        <Picker.Item label="AED" value="AED" />
-        <Picker.Item label="USD" value="USD" />
-        <Picker.Item label="INR" value="INR" />
-        <Picker.Item label="AMD" value="AMD" />
-        <Picker.Item label="ANG" value="ANG" />
-      </Picker>
+      <View style={styles.pickerContainer}>
+        <View style={styles.pickerWrapper}>
+          <Text style={styles.text}>From:</Text>
+          <Picker
+            style={styles.picker}
+            selectedValue={fromCurrency}
+            onValueChange={setFromCurrency}>
+            <Picker.Item label="USD" value="USD" />
+            <Picker.Item label="AED" value="AED" />
+            <Picker.Item label="INR" value="INR" />
+            <Picker.Item label="AMD" value="AMD" />
+            <Picker.Item label="ANG" value="ANG" />
+          </Picker>
+        </View>
+        <View style={styles.pickerWrapper}>
+          <Text style={styles.text}>To:</Text>
+          <Picker
+            style={styles.picker}
+            selectedValue={toCurrency}
+            onValueChange={setToCurrency}>
+            <Picker.Item label="AED" value="AED" />
+            <Picker.Item label="USD" value="USD" />
+            <Picker.Item label="INR" value="INR" />
+            <Picker.Item label="AMD" value="AMD" />
+            <Picker.Item label="ANG" value="ANG" />
+          </Picker>
+        </View>
+      </View>
       <TextInput
         placeholder="Result"
         keyboardType="numeric"
         style={styles.resultInput}
         value={convertedAmount}
-        onChangeText={text => {
-          handleChangeAmount(text);
-        }}
+        onChangeText={handleChangeAmount}
       />
-      <TouchableOpacity style={{fontSize: 20, marginBottom: 0}} onPress={()=>handleOpenModal(true)}>
-        <Text>Show last 5 conversion Click Here</Text>
+      <TouchableOpacity style={styles.historyButton} onPress={() => handleOpenModal(true)}>
+        <Text>Show last 5 conversions Click Here</Text>
       </TouchableOpacity>
-      {/* show last 5 conversion details  */}
-     
       <Modal
         visible={isVisible}
         animationType="slide"
         onRequestClose={() => setIsVisible(false)}>
         <View style={styles.modalContainer}>
-          <Text > Modal to show last conversion details</Text>
+          <Text style={styles.modalTitle}>Modal to show last conversion details</Text>
           <FlatList
             data={conversionHistory}
             renderItem={renderItems}
@@ -156,10 +147,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-evenly',
+    padding: 20,
   },
   title: {
     fontSize: 20,
-    marginBottom: 20,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -171,41 +162,48 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     textAlign: 'center',
   },
+  pickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  pickerWrapper: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
   picker: {
     height: 50,
     width: '100%',
-    marginBottom: 20,
-  },
-  from: {
-    color: '#fff',
   },
   resultInput: {
     height: 40,
     borderColor: 'grey',
     borderWidth: 1,
     textAlign: 'center',
-    marginTop: 30,
+    marginTop: 80,
   },
   itemHistory: {
     padding: 10,
     borderBottomWidth: 1,
-    backgroundColor: 'red',
   },
   text: {
-    marginTop: 30,
-    fontSize: 20,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    textAlign: 'center',
   },
-
-  modalContainer:{
+  historyButton: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  modalContainer: {
     flex: 1,
-    padding:20,
-    justifyContent: 'center'
+    padding: 20,
+    justifyContent: 'center',
   },
-  modalTitle:{
+  modalTitle: {
     fontSize: 20,
-    marginBottom: 20,
     fontWeight: 'bold',
     textAlign: 'center',
-    paddingTop:30
-  }
+    marginBottom: 20,
+  },
 });
